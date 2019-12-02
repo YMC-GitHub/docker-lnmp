@@ -62,31 +62,14 @@ function add_mysql() {
   TXT=$(
     cat <<EOF
 ######
-# See: https://hub.docker.com/_/mysql/
+# See: https://github.com/YMC-GitHub/mirror-mysql
 ######
 # data serve with mysql
-FROM mysql:5.7
-MAINTAINER ${author} <${email}>
-ENV MYSQL_ALLOW_EMPTY_PASSWORD yes
-#https://www.jb51.net/article/115422.htm
-#VOLUME /etc/mysql
-#VOLUME /var/log/mysql
-#VOLUME /var/lib/mysql
-RUN chown mysql:mysql /var/lib/mysql
-#RUN chown $(whoami):$(whoami) /var/lib/mysql && echo $(whoami)
-#fix:[Warning] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
-#deletes  --initialize arg
-CMD ["--datadir=/var/lib/mysql"]
-#
-#https://blog.csdn.net/qq_27437073/article/details/79623855
-#https://www.cnblogs.com/tanq/p/11235356.html
-#https://blog.csdn.net/chengqiuming/article/details/79038772
-#https://www.cnblogs.com/linxiyue/p/8229048.html
-#https://www.cnblogs.com/songanwei/p/9167326.html
-# 进阶：
-# 在alpine中运行mysql
-#https://blog.phpgao.com/run_mysql_in_alpine.html
-
+FROM registry.cn-hangzhou.aliyuncs.com/yemiancheng/mysql:alpine-3.10.3
+EXPOSE 3306 
+#set timezone
+RUN apk add -U tzdata &&  cp "/usr/share/zoneinfo/Asia/Shanghai" "/etc/localtime" && apk del tzdata
+#COPY \$(pwd)/mysql/conf/my.cnf /etc/mysql/my.cnf
 EOF
   )
   TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")

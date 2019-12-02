@@ -13,6 +13,7 @@ RUN_SCRIPT_PATH=$(pwd)
 ###
 # tag="${hub}${ower}${repo}${label}"
 tag=registry.cn-hangzhou.aliyuncs.com/yemiancheng/mysql:5.7
+#tag=registry.cn-hangzhou.aliyuncs.com/yemiancheng/mysql:5.7-alipine
 # 创建镜像
 #docker image build --tag "$tag" ./mysql
 # 创建容器
@@ -35,7 +36,10 @@ tag=registry.cn-hangzhou.aliyuncs.com/yemiancheng/mysql:5.7
 # mysql -uroot -p123456
 # 操作数据
 # show databases;
+# 设置密码
 # SET PASSWORD = PASSWORD('yourpwd');
+# 查看时区
+# show variables like "%time_zone%";
 # 看字符集
 # SHOW VARIABLES LIKE 'characterset%';
 # SHOW VARIABLES LIKE 'collation_%';
@@ -63,8 +67,11 @@ tag=registry.cn-hangzhou.aliyuncs.com/yemiancheng/mysql:5.7
 function test_delete() {
     # 停止容器
     docker container stop mysql
-    # 删除容器
-    docker container rm mysql
+    # 删除容器 + 删数据卷
+    docker container rm --force --volumes mysql
+    # 删数据卷
+    ##fix:--initialize specified but the data directory has files in it. Aborting.
+    #docker volume prune --force
 }
 function test_start() {
     # 创建镜像
@@ -73,16 +80,26 @@ function test_start() {
     #docker image inspect "$tag"
     docker image ls | grep "mysql"
     # 创建容器
+    #docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=123456 -d "$tag"
     #ok:docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=123456 -d "$tag"
     #ok:docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf:/etc/mysql -v $(pwd)/mysql/log:/var/log/mysql "$tag"
+    #docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf:/etc/mysql -v $(pwd)/mysql/log:/var/log/mysql "$tag"
 
-    docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf.d:/etc/mysql/conf.d -v $(pwd)/mysql/log:/var/log/mysql -v $(pwd)/mysql/data:/var/lib/mysql "$tag"
+    #issues:mysqld: Can't create directory '/var/lib/mysql/' (Errcode: 17 - File exists)
+    #no:
+    echo "docker run -d --user root:0 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/data:/var/lib/mysql \"$tag\""
+    docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql --privileged=true -v $(pwd)/mysql/conf/my.cnf:/etc/mysql/my.cnf:ro -v $(pwd)/mysql/data:/var/lib/mysql:rw "$tag"
+    #no:docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/data:/var/lib/mysql "$tag"
+    #no:docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf.d:/etc/mysql/conf.d -v $(pwd)/mysql/log:/var/log/mysql -v $(pwd)/mysql/data:/var/lib/mysql --privileged=true "$tag"
     #issues:mysqld: Can't read dir of '/etc/mysql/conf.d/' (Errcode: 13 - Permission denied)
     #no:docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf.d:/etc/mysql/conf.d -v $(pwd)/mysql/log:/var/log/mysql -v $(pwd)/mysql/data:/var/lib/mysql:rw "$tag"
     #issues:cannot create directory '/var/lib/mysql': Permission denied
     #no:docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name mysql -v $(pwd)/mysql/conf:/etc/mysql -v $(pwd)/mysql/log:/var/log/mysql -v $(pwd)/mysql/data:/var/lib/mysql "$tag"
     # 容器状态
     docker container ls --all | grep "mysql"
+    # 容器日志
+    sleep 4
+    docker container logs mysql
 }
 function add_user() {
     whoami
@@ -94,6 +111,8 @@ function add_user() {
     cat /etc/group | grep mysql
 }
 function test_debug() {
+    # 容器详情
+    #docker container inspect mysql
     # 容器日志
     docker container logs mysql
     #2 mysql配置位置

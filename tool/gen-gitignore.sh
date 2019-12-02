@@ -16,6 +16,8 @@ function add_for_project() {
 *.pem
 *.crt
 *.csr
+dev/
+*.srl
 EOF
     )
     echo "gen .gitignore :$THIS_PROJECT_PATH/.gitignore"

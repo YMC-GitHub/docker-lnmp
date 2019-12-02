@@ -76,27 +76,14 @@ mysql:
     - "3306:3306"
   volumes:
     # NOTE: your data will be stored in ./mysql
-    - ./mysql/conf/my.cnf:/etc/my.cnf
+    #- ./mysql/log/:/var/log/mysql
+    - ./mysql/conf/my.cnf:/etc/mysql/my.cnf
     - ./mysql/data:/var/lib/mysql
-    - ./mysql/init:/docker-entrypoint-initdb.d
+    #- ./mysql/init:/docker-entrypoint-initdb.d
+    #- ./mysql/data:/app/mysql
   environment:
     # define var in CM for mysql root password
     - MYSQL_ROOT_PASSWORD=your_mysql_password
-###
-#mysql-alpine
-###
-#mysql:
-#  image: yobasystems/alpine-mariadb
-#  environment:
-#    MYSQL_ROOT_PASSWORD: hguyFtgfR4r9R4r76
-#    MYSQL_DATABASE: wordpressdb
-#    MYSQL_USER: wordpressuser
-#    MYSQL_PASSWORD: hguyFt6S95dgfR4ryb
-#  expose:
-#    - "3306"
-#  volumes:
-#    - /data/example/mysql:/var/lib/mysql
-#  restart: always
 EOF
   )
   TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")

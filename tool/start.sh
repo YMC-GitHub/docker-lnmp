@@ -22,9 +22,15 @@ source $RUN_SCRIPT_PATH/tool/gen-mysql-init-data.sh
 #echo "build image..."
 #docker-compose build
 #echo "compose container..."
-#docker-compose up
+#docker-compose up --detach
 #or
-#docker-compose up --build
+#docker-compose up --build --detach
+#echo "get container status..."
+#docker-compose ps
+#echo "get container logs..."
+#docker-compose logs mysql
 #docker-compose stop
+#docker-compose rm --force
+#docker-compose logs xx #kill|restart|ps
 ### usage
 #./tool/start.sh
