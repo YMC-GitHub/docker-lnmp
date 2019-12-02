@@ -1,9 +1,9 @@
-## Introduction
+
+## introduction
 
 deploy lnmp(Linux+Nginx+mysql+PHP) using docker
 
-
-## Architecture
+## about architecture
 
 ![architecture][1]
 
@@ -15,23 +15,33 @@ The whole app is divided into three Containers:
 
 Our app scripts are located on host, you can edit files directly without rebuilding/restarting whole images/containers.
 
-## Build and Run
+## build your images
 
 At first, you should have had [Docker](https://docs.docker.com) and [Docker Compose](https://docs.docker.com/compose) installed.
 
-Without building images one by one, you can make use of $(docker-compose) and simply issue:
+    $ docker-compose build
 
-    $ sudo docker-compose up
+## create,start and run your containers
+
+Without building images one by one, you can make use of $(docker-compose) and simply use:
+
+    $ docker-compose up --detach
 
 For more operations to containers, please refer to:
 
-    $ sudo docker-compose --help
+    $ docker-compose --help
 
 Check out your https://\<docker-host\> and have fun 
 
+i prefer to use : docker-compose up --build --detach
+
 ## Contributors
 
-ymc-github <yemiancheng@gmail.com>
+Micooz micooz@hotmail.com
+
+sndnvaps sndnvaps@gmail.com
+
+ymc-github yemiancheng@gmail.com
 
 ## License
 
