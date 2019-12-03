@@ -15,19 +15,25 @@ function add_nginx() {
 # static web serve with nginx
 nginx:
   # which image it uses
-  image: nginx:latest
+  #image: nginx:1.17-alpine
+  build: ./nginx
   ports:
     - "80:80"
     - "443:443"
+    - "8080:80"
   volumes:
     # staitc web
     - ./app/src:/usr/share/nginx/html
     # nginx configs
     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
+    # nginx logs
+    #- ./nginx/log:/var/log/nginx
     # certificates
     - ./nginx/ca/server.crt/:/etc/nginx/server.crt:ro
     - ./nginx/ca/server.key/:/etc/nginx/server.key:ro
+    # uses local machine time to cm
+    - /etc/localtime:/etc/localtime
   links:
     - php-fpm:__DOCKER_PHP_FPM__
 EOF
@@ -44,12 +50,21 @@ function add_php_fpm() {
 php-fpm:
   build: ./php-fpm
   ports:
-    - "9000"
+    #- "9000"
+    - "9000:9000"
   volumes: 
     # dymatic web
     - ./app/src:/usr/share/nginx/html
+    # reference to :https://hub.docker.com/layers/php/library/php/7.4.0-fpm-alpine/images/sha256-74933e05838128c933d7a46dfa718f243a64925afdaa380d133e43df5012f4bf
+    #- ./app/src:/var/www/html
     # my php.ini
     - ./php-fpm/php.ini-production:/usr/local/etc/php/php.ini:ro
+    # some php conf files
+    - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
+    # some php-fpm conf files
+    - ./php-fpm/php-fpm.d:/usr/local/etc/php-fpm.d:ro
+    # uses local machine time to cm
+    - /etc/localtime:/etc/localtime
   # environment:
     # set your app env variables here:
     # - APP_KEY=
@@ -77,10 +92,12 @@ mysql:
   volumes:
     # NOTE: your data will be stored in ./mysql
     #- ./mysql/log/:/var/log/mysql
-    - ./mysql/conf/my.cnf:/etc/mysql/my.cnf
+    - ./mysql/my.cnf:/etc/mysql/my.cnf
     - ./mysql/data:/var/lib/mysql
     #- ./mysql/init:/docker-entrypoint-initdb.d
     #- ./mysql/data:/app/mysql
+    # uses local machine time to cm
+    - /etc/localtime:/etc/localtime
   environment:
     # define var in CM for mysql root password
     - MYSQL_ROOT_PASSWORD=your_mysql_password
