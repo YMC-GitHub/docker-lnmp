@@ -23,7 +23,7 @@ nginx:
     - "8080:80"
   volumes:
     # staitc web
-    - ./app/src:/usr/share/nginx/html
+    - ./app:/usr/share/nginx/html
     # nginx configs
     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
@@ -52,9 +52,9 @@ php-fpm:
   ports:
     #- "9000"
     - "9000:9000"
-  volumes: 
+  volumes:
     # dymatic web
-    - ./app/src:/usr/share/nginx/html
+    - ./app:/usr/share/nginx/html
     # reference to :https://hub.docker.com/layers/php/library/php/7.4.0-fpm-alpine/images/sha256-74933e05838128c933d7a46dfa718f243a64925afdaa380d133e43df5012f4bf
     #- ./app/src:/var/www/html
     # my php.ini
