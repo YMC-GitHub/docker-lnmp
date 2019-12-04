@@ -54,6 +54,25 @@ MAINTAINER ${author} <${email}>
 #uses local pm time with -v /etc/localtime:/etc/localtime in compose file
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add -U tzdata &&  cp "/usr/share/zoneinfo/Asia/Shanghai" "/etc/localtime" && apk del tzdata
 
+######
+# You can install php extensions using docker-php-ext-install
+######
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories &&  apk add -U --no-cache autoconf g++ libtool make curl-dev libxml2-dev linux-headers && docker-php-ext-install -j\$(nproc) pdo_mysql  && docker-php-ext-install -j\$(nproc) mysqli && docker-php-ext-install -j\$(nproc) mysql
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+# && apk update\
+# && apk add --no-cache libmcrypt-dev freetype-dev libjpeg-turbo-dev \
+#         git \
+#         # libfreetype6-dev \
+#         # libjpeg62-turbo-dev \
+#         libpng-dev \
+# && docker-php-ext-install mcrypt mysqli pdo pdo_mysql mbstring bcmath zip opcache\
+# && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ \
+# && docker-php-ext-install -j$(nproc) gd
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+  && docker-php-source extract \
+  && docker-php-ext-install mysqli pdo pdo_mysql \
+  && docker-php-source delete
+
 # in win+virtualbox,have to be root
 # in pro :
 # use root to start php-fpm
@@ -63,17 +82,8 @@ MAINTAINER ${author} <${email}>
 # or other user but not root
 # add -R arg to allow root user
 CMD ["php-fpm","-R"]
-######
-# You can install php extensions using docker-php-ext-install
-######
-#RUN apt-get update && apt-get install -y \
-#        libfreetype6-dev \
-#        libjpeg62-turbo-dev \
-#        libmcrypt-dev \
-#        libpng12-dev \
-#    && docker-php-ext-install -j\$(nproc) iconv mcrypt \
-#    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-#    && docker-php-ext-install -j\$(nproc) gd
+
+
 EOF
   )
   TXT=$(echo "$TXT" | sed "s/^ *#.*//g" | sed "/^$/d")
