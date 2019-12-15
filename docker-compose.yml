@@ -1,0 +1,30 @@
+mysql:
+  build: ./mysql
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./mysql/data:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=your_mysql_password
+php-fpm:
+  build: ./php-fpm
+  ports:
+    - "9000"
+  volumes: 
+    - ./app/src:/usr/share/nginx/html
+    - ./php-fpm/php.ini-production:/usr/local/etc/php/php.ini:ro
+  links:
+    - mysql:mysql
+nginx:
+  image: nginx:latest
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./app/src:/usr/share/nginx/html
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
+    - ./nginx/ca/server.crt/:/etc/nginx/server.crt:ro
+    - ./nginx/ca/server.key/:/etc/nginx/server.key:ro
+  links:
+    - php-fpm:__DOCKER_PHP_FPM__
